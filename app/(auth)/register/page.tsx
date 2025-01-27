@@ -49,7 +49,7 @@ export default function Page() {
         <div className="flex justify-center gap-2 px-4">
           <Image src="/vision.png" width={20} height={20} alt="Logo" />
           <h3 className="text-xl font-semibold dark:text-zinc-50">
-            VISION METRIC AI
+            VISION METRIC AI.
           </h3>
         </div> <h3 className="text-xl font-semibold dark:text-zinc-50 text-center">Crear Cuenta</h3>
         <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
