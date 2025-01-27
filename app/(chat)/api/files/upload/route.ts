@@ -1,19 +1,16 @@
 import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
-
 import { auth } from '@/app/(auth)/auth';
 
-// Use Blob instead of File since File is not available in Node.js environment
 const FileSchema = z.object({
   file: z
-    .instanceof(Blob)
+    .instanceof(File) // Usar File en lugar de Blob
     .refine((file) => file.size <= 5 * 1024 * 1024, {
       message: 'File size should be less than 5MB',
     })
-    // Update the file type based on the kind of files you want to accept
-    .refine((file) => ['image/jpeg', 'image/png'].includes(file.type), {
-      message: 'File type should be JPEG or PNG',
+    .refine((file) => ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type), {
+      message: 'File type should be JPEG, PNG, or PDF',
     }),
 });
 
@@ -24,13 +21,9 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  if (request.body === null) {
-    return new Response('Request body is empty', { status: 400 });
-  }
-
   try {
     const formData = await request.formData();
-    const file = formData.get('file') as Blob;
+    const file = formData.get('file') as File;
 
     if (!file) {
       return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
@@ -39,30 +32,24 @@ export async function POST(request: Request) {
     const validatedFile = FileSchema.safeParse({ file });
 
     if (!validatedFile.success) {
-      const errorMessage = validatedFile.error.errors
-        .map((error) => error.message)
-        .join(', ');
-
-      return NextResponse.json({ error: errorMessage }, { status: 400 });
+      return NextResponse.json(
+        { error: validatedFile.error.errors.map(e => e.message).join(', ') },
+        { status: 400 }
+      );
     }
 
-    // Get filename from formData since Blob doesn't have name property
-    const filename = (formData.get('file') as File).name;
-    const fileBuffer = await file.arrayBuffer();
+    const buffer = await file.arrayBuffer();
+    const blob = await put(file.name, buffer, {
+      access: 'public',
+      contentType: file.type // Añadir tipo MIME correcto
+    });
 
-    try {
-      const data = await put(`${filename}`, fileBuffer, {
-        access: 'public',
-      });
+    return NextResponse.json(blob);
 
-      return NextResponse.json(data);
-    } catch (error) {
-      return NextResponse.json({ error: 'Upload failed' }, { status: 500 });
-    }
   } catch (error) {
     return NextResponse.json(
       { error: 'Failed to process request' },
-      { status: 500 },
+      { status: 500 }
     );
   }
 }

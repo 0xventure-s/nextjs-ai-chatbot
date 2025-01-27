@@ -16,24 +16,24 @@ interface SuggestedActionsProps {
 function PureSuggestedActions({ chatId, append }: SuggestedActionsProps) {
   const suggestedActions = [
     {
-      title: 'What are the advantages',
-      label: 'of using Next.js?',
-      action: 'What are the advantages of using Next.js?',
+      title: '¿Cuáles son las implicaciones legales',
+      label: 'de un contrato comercial?',
+      action: '¿Cuáles son las implicaciones legales de un contrato comercial?',
     },
     {
-      title: 'Write code to',
-      label: `demonstrate djikstra's algorithm`,
-      action: `Write code to demonstrate djikstra's algorithm`,
+      title: 'Escribe un alegato para',
+      label: `un caso de negligencia médica`,
+      action: `Escribe un alegato para un caso de negligencia médica`,
     },
     {
-      title: 'Help me write an essay',
-      label: `about silicon valley`,
-      action: `Help me write an essay about silicon valley`,
+      title: 'Ayúdame a redactar un contrato',
+      label: `de compraventa de bienes inmuebles`,
+      action: `Ayúdame a redactar un contrato de compraventa de bienes inmuebles`,
     },
     {
-      title: 'What is the weather',
-      label: 'in San Francisco?',
-      action: 'What is the weather in San Francisco?',
+      title: '¿Cuáles son los requisitos',
+      label: 'para obtener la custodia de un menor?',
+      action: '¿Cuáles son los requisitos para obtener la custodia de un menor?',
     },
   ];
 
