@@ -21,7 +21,7 @@ export function AuthForm({
           htmlFor="email"
           className="text-zinc-600 font-normal dark:text-zinc-400"
         >
-          Email Address
+          Email 
         </Label>
 
         <Input
@@ -42,12 +42,13 @@ export function AuthForm({
           htmlFor="password"
           className="text-zinc-600 font-normal dark:text-zinc-400"
         >
-          Password
+          Contraseña
         </Label>
 
         <Input
           id="password"
           name="password"
+          placeholder='*******'
           className="bg-muted text-md md:text-sm"
           type="password"
           required

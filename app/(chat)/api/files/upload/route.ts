@@ -2,53 +2,73 @@ import { put } from '@vercel/blob';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 import { auth } from '@/app/(auth)/auth';
+import { PDFDocument } from 'pdf-lib';
 
+// Schema mejorado con mensajes en español
 const FileSchema = z.object({
   file: z
-    .instanceof(File) // Usar File en lugar de Blob
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: 'File size should be less than 5MB',
+    .instanceof(File, { message: 'Debe ser un archivo válido' })
+    .refine(file => file.size <= 10 * 1024 * 1024, {
+      message: 'El tamaño máximo permitido es 10MB'
     })
-    .refine((file) => ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type), {
-      message: 'File type should be JPEG, PNG, or PDF',
-    }),
+    .refine(file => ['image/jpeg', 'image/png', 'application/pdf'].includes(file.type), {
+      message: 'Solo se aceptan JPG, PNG o PDF'
+    })
 });
 
 export async function POST(request: Request) {
-  const session = await auth();
-
-  if (!session) {
-    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
-  }
-
   try {
+    // Autenticación
+    const session = await auth();
+    if (!session?.user?.id) {
+      return NextResponse.json({ error: 'Acceso no autorizado' }, { status: 401 });
+    }
+
+    // Parsear FormData
     const formData = await request.formData();
     const file = formData.get('file') as File;
 
-    if (!file) {
-      return NextResponse.json({ error: 'No file uploaded' }, { status: 400 });
-    }
-
-    const validatedFile = FileSchema.safeParse({ file });
-
-    if (!validatedFile.success) {
+    // Validar archivo
+    const validation = FileSchema.safeParse({ file });
+    if (!validation.success) {
       return NextResponse.json(
-        { error: validatedFile.error.errors.map(e => e.message).join(', ') },
+        { error: validation.error.errors.map(e => e.message).join('. ') },
         { status: 400 }
       );
     }
 
-    const buffer = await file.arrayBuffer();
-    const blob = await put(file.name, buffer, {
+    // Procesar archivo PDF
+    let pdfInfo = null;
+    if (file.type === 'application/pdf') {
+      const arrayBuffer = await file.arrayBuffer();
+      const pdfDoc = await PDFDocument.load(arrayBuffer);
+      pdfInfo = {
+        pageCount: pdfDoc.getPageCount(),
+        title: pdfDoc.getTitle() || 'Sin título',
+      };
+    }
+
+    // Subir a Vercel Blob
+    const { url, downloadUrl } = await put(file.name, file, {
       access: 'public',
-      contentType: file.type // Añadir tipo MIME correcto
+      contentType: file.type,
+      addRandomSuffix: true // Evitar colisiones
     });
 
-    return NextResponse.json(blob);
+    return NextResponse.json({
+      success: true,
+      url,
+      downloadUrl,
+      fileType: file.type,
+      fileName: file.name,
+      fileSize: file.size,
+      pdfInfo
+    });
 
   } catch (error) {
+    console.error('🚨 Error en /api/upload:', error);
     return NextResponse.json(
-      { error: 'Failed to process request' },
+      { error: (error instanceof Error) ? error.message : 'Error interno del servidor' },
       { status: 500 }
     );
   }

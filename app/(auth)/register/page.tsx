@@ -44,15 +44,13 @@ export default function Page() {
   };
 
   return (
-    <div className="flex h-dvh w-screen items-start pt-12 md:pt-0 md:items-center justify-center bg-background">
-      <div className="w-full max-w-md overflow-hidden rounded-2xl gap-12 flex flex-col">
+    <div className="flex h-screen w-screen items-center justify-center bg-background p-4 md:p-0">
+      <div className="w-full max-w-md overflow-hidden rounded-2xl flex flex-col gap-8">
         <div className="flex justify-center gap-2 px-4">
-          <Image src="/vision.png" width={20} height={20} alt="Logo" />
-          <h3 className="text-xl font-semibold dark:text-zinc-50">
-            VISION METRIC AI.
-          </h3>
-        </div> <h3 className="text-xl font-semibold dark:text-zinc-50 text-center">Crear Cuenta</h3>
-        <div className="flex flex-col items-center justify-center gap-2 px-4 text-center sm:px-16">
+          <Image src="/images/metrics.png" width={500} height={500} alt="Logo"  />
+        </div> 
+        <h3 className="text-xl font-semibold dark:text-zinc-50 text-center">Crear Cuenta</h3>
+        <div className="flex flex-col items-center justify-center gap-4 px-4 text-center sm:px-16">
           <p className="text-sm text-gray-500 dark:text-zinc-400">
             Crea una cuenta con tu correo electrónico y contraseña
           </p>
